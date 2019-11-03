@@ -1,4 +1,4 @@
-package space.sentinel
+package space.sentinel.sensor
 
 import com.nhaarman.mockitokotlin2.*
 import com.pi4j.io.gpio.*
@@ -6,8 +6,8 @@ import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
-
 
 internal class PIRReaderTest {
 
@@ -34,6 +34,11 @@ internal class PIRReaderTest {
     }
 
     private val pirReader = PIRReader(gpioInput)
+
+    @BeforeEach
+    fun setup() {
+        pirReader.setup()
+    }
 
     @AfterEach
     fun tearDown() {
