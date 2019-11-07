@@ -9,7 +9,6 @@ import com.pi4j.io.gpio.PinState
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.invocation.InvocationOnMock
 import reactor.test.StepVerifier
@@ -39,11 +38,6 @@ internal class PIRReaderTest {
     }
 
     private val pirReader = PIRReader(gpioInput)
-
-    @BeforeEach
-    fun setup() {
-        pirReader.setup()
-    }
 
     @AfterEach
     fun tearDown() {

@@ -20,12 +20,13 @@ class PIRReader(private val input: GpioPinDigitalInput) : AutoCloseable {
                     .create<GpioPinDigitalStateChangeEvent>()
     private val sink = processor.sink()
 
-    fun setup(){
-        logger.debug("setup")
+    init {
+        logger.debug("Setup listener.")
         input.addListener(GpioPinListenerDigital {
             sink.next(it)
         })
     }
+
     /**
      * Emits state of the sensor
      * @see com.pi4j.io.gpi.PinState
@@ -33,11 +34,12 @@ class PIRReader(private val input: GpioPinDigitalInput) : AutoCloseable {
     fun read(): Flux<PinState> {
         return processor.map {
             logger.debug("Processing event: ${it.state.value}")
-            it.state }
+            it.state
+        }
     }
 
     override fun close() {
-        logger.debug("close")
+        logger.debug("Close.")
         sink.complete()
         input.removeAllListeners()
     }

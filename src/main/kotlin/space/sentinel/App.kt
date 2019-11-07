@@ -18,7 +18,6 @@ fun main(args: Array<String>) {
     val reader = PIRReader(sensor)
 
     try {
-        reader.setup()
         logger.info("Listening ...")
         reader.read().publishOn(Schedulers.elastic())
                 .doOnNext {
