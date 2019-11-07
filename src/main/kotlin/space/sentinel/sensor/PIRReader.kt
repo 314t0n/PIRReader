@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.FluxProcessor
 
 /**
- * Reads from GPIO and emits it's state
+ * Reads the state of PIR sensor from GPIO
  */
 class PIRReader(private val input: GpioPinDigitalInput) : AutoCloseable {
 
@@ -27,7 +27,8 @@ class PIRReader(private val input: GpioPinDigitalInput) : AutoCloseable {
         })
     }
     /**
-     * Emits true if movement detected
+     * Emits state of the sensor
+     * @see com.pi4j.io.gpi.PinState
      */
     fun read(): Flux<PinState> {
         return processor.map {
