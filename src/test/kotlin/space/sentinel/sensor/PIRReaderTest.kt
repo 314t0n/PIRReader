@@ -1,13 +1,18 @@
 package space.sentinel.sensor
 
-import com.nhaarman.mockitokotlin2.*
-import com.pi4j.io.gpio.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.pi4j.io.gpio.GpioPinDigitalInput
+import com.pi4j.io.gpio.PinState
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.invocation.InvocationOnMock
+import reactor.test.StepVerifier
 
 internal class PIRReaderTest {
 
@@ -16,7 +21,7 @@ internal class PIRReaderTest {
     }
 
     private val negativeEvent = mock<GpioPinDigitalStateChangeEvent> {
-        on { state }.doReturn(PinState.HIGH)
+        on { state }.doReturn(PinState.LOW)
     }
 
     private val gpioInput = mock<GpioPinDigitalInput> {
@@ -46,11 +51,13 @@ internal class PIRReaderTest {
     }
 
     @Test
-    fun `read ignores LOW state`() {
-        val result = pirReader.read().take(2).collectList().block()
+    fun `reads state`() {
+        StepVerifier.create( pirReader.read())
+                .expectNext(PinState.HIGH)
+                .expectNext(PinState.LOW)
+                .expectNext(PinState.HIGH)
+                .thenCancel()
 
-        assert(result[0] == true)
-        assert(result[1] == true)
         verify(gpioInput).addListener(any<GpioPinListenerDigital>())
     }
 }

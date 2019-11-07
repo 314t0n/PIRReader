@@ -15,18 +15,18 @@ dependencies {
     compile(kotlin("stdlib"))
 //    compile(files("pi4j-jdk11-release~1.1-ge053148-137.jar"))
     compile("com.pi4j:pi4j-core:1.2")
-    compile("io.projectreactor:reactor-core:3.2.6.RELEASE")
+    compile("io.projectreactor:reactor-core:3.3.0.RELEASE")
+    compile("io.projectreactor:reactor-test:3.3.0.RELEASE")
     compile("org.slf4j:slf4j-api:1.7.26")
     compile("ch.qos.logback:logback-classic:0.9.26")
     compile("ch.qos.logback:logback-core:0.9.26")
     compile("javax.xml.bind:jaxb-api:2.3.0")
 
     testCompile("io.kotlintest:kotlintest-runner-junit5:3.1.9")
-
-    testCompile("org.junit.jupiter:junit-jupiter-engine:5.4.0")
     testCompile("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
     
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
+    testImplementation("org.hamcrest:hamcrest-all:1.3")
 
     implementation(kotlin("stdlib-jdk8"))
 
@@ -42,18 +42,20 @@ repositories {
     jcenter()
 }
 
-
 val fatJar = task("fatJar", type = Jar::class) {
     manifest {
         attributes["Implementation-Title"] = "PIR Sensor Reader"
         attributes["Implementation-Version"] = "1.0"
-        attributes["Main-Class"] = "space.hajnal.App"
+        attributes["Main-Class"] = "space.sentinel.AppKt"
     }
     from(configurations.runtime.get().map { if (it.isDirectory) it else zipTree(it) })
     with(tasks["jar"] as CopySpec)
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
+
 tasks {
+
     "build" {
         dependsOn(fatJar)
     }
