@@ -1,10 +1,17 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 group = "space.sentinel"
 version = "1.0-SNAPSHOT"
+
+//java {
+//    withJavadocJar()
+//    withSourcesJar()
+//}
 
 plugins {
     application
     kotlin("jvm") version "1.3.40"
-//    id("de.undercouch.download").version("3.4.3")
+    `maven-publish`
 }
 
 application {
@@ -12,19 +19,19 @@ application {
 }
 
 dependencies {
-    compile(kotlin("stdlib"))
-//    compile(files("pi4j-jdk11-release~1.1-ge053148-137.jar"))
-    compile("com.pi4j:pi4j-core:1.2")
-    compile("io.projectreactor:reactor-core:3.3.0.RELEASE")
-    compile("io.projectreactor:reactor-test:3.3.0.RELEASE")
-    compile("org.slf4j:slf4j-api:1.7.26")
-    compile("ch.qos.logback:logback-classic:0.9.26")
-    compile("ch.qos.logback:logback-core:0.9.26")
-    compile("javax.xml.bind:jaxb-api:2.3.0")
+    implementation(kotlin("stdlib"))
+    implementation("com.pi4j:pi4j-core:1.2")
+    implementation("io.projectreactor:reactor-core:3.3.0.RELEASE")
+    implementation("io.projectreactor:reactor-test:3.3.0.RELEASE")
+    implementation("org.slf4j:slf4j-api:1.7.26")
+    implementation("ch.qos.logback:logback-classic:0.9.26")
+    implementation("ch.qos.logback:logback-core:0.9.26")
+    implementation("javax.xml.bind:jaxb-api:2.3.0")
+//    implementation("space.sentinel:camerareader:1.0")
 
-    testCompile("io.kotlintest:kotlintest-runner-junit5:3.1.9")
-    testCompile("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
-    
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.9")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
 
@@ -42,6 +49,49 @@ repositories {
     jcenter()
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava"
+        ) {
+            artifactId = "PIRReader"
+            from(components["java"])
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name.set("PIR Reader")
+                description.set("Reactive GPIO PIR sensor reader")
+                url.set("https://github.com/314t0n/PIRReader")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("314t0n")
+                        name.set("Hajnal David")
+                    }
+                }           
+            }
+        }
+    }
+    repositories {
+        maven {
+            val releasesRepoUrl = uri("$buildDir/repos/releases")
+            val snapshotsRepoUrl = uri("$buildDir/repos/snapshots")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        }
+    }
+}
+
 val fatJar = task("fatJar", type = Jar::class) {
     manifest {
         attributes["Implementation-Title"] = "PIR Sensor Reader"
@@ -52,7 +102,9 @@ val fatJar = task("fatJar", type = Jar::class) {
     with(tasks["jar"] as CopySpec)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+}
 
 tasks {
 
@@ -62,11 +114,4 @@ tasks {
     "test"(Test::class) {
         useJUnitPlatform()
     }
-//    task<Download>("download-pi4j") {
-//        src("https://jitpack.io/com/github/Robo4J/pi4j/jdk11-release~1.1-ge053148-137/pi4j-jdk11-release~1.1-ge053148-137.jar")
-//        dest("${buildDir}/libs/PIR")
-//        onlyIfModified(true)
-//    }
 }
-
-//defaultTasks("download-pi4j")
